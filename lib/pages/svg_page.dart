@@ -55,13 +55,11 @@ class SvgPage extends StatelessWidget {
                       if (!res.isSuccess) {
                         snackBar = '保存到相册失败!';
                       }
-                      if (context.mounted) return;
                       Fluttertoast.showToast(
                           msg: snackBar,
                           toastLength: Toast.LENGTH_SHORT,
                           gravity: ToastGravity.CENTER,
                           timeInSecForIosWeb: 1,
-                          backgroundColor: Colors.red,
                           textColor: Colors.white,
                           fontSize: 16.0
                       );
