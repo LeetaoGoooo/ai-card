@@ -19,11 +19,11 @@ abstract class Template {
       if (res == null) {
         throw Exception("Empty response");
       }
-      print("return:$res");
       final RegExp svgRegex = RegExp(r'<svg[\s\S]*?<\/svg>');
       final Match? svgMatch = svgRegex.firstMatch(res);
       final svgString = svgMatch?.group(0);
       if (svgString == null) {
+        print("There is no svg returned in the response, please try again");
         throw Exception("There is no svg returned in the response, please try again");
       }
       return svgString;

@@ -6,7 +6,7 @@ import 'package:word_to_card/share_prefs.dart';
 import 'package:http/io_client.dart';
 
 class Claude {
-  final int maxTokens = 1024;
+  final int maxTokens = 4096;
   static SharedPrefs prefs = SharedPrefs();
 
   init() async {
