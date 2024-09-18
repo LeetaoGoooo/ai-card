@@ -56,15 +56,17 @@ class IntroCardState extends State<IntroCard> {
                       builder: (BuildContext ctx) => SvgPage(
                             svgString: svgString,
                           )),
-                ).catchError((error) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('An error occurred: $error')),
-                  );
-                });
-              } finally {
-                if (!context.mounted) {
-                  Navigator.pop(context);
-                }
+                );
+              }  catch (e) {
+                print(e);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('An error occurred: $e')),
+                );
+              }
+              finally {
+                if (context.mounted) {
+                  Navigator.of(context).pop();
+                };
               }
             }
           }

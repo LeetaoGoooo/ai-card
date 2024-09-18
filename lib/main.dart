@@ -37,9 +37,9 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
-  final TextEditingController _apiKey = TextEditingController();
-  final TextEditingController _endPoint = TextEditingController();
+  final SharedPrefs sharedPrefs = SharedPrefs();
+  late TextEditingController _apiKey;
+  late final TextEditingController _endPoint;
 
 
   final List<Template> templates = [
@@ -53,6 +53,14 @@ class _MyHomePageState extends State<MyHomePage> {
     Philosopher(),
     AnswerBook()
   ];
+
+  @override
+  void initState() {
+    _apiKey = TextEditingController(text: sharedPrefs.apiKey ?? "");
+    _endPoint = TextEditingController(text:sharedPrefs.baseUrl ?? "");
+    super.initState();
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -104,7 +112,12 @@ class _MyHomePageState extends State<MyHomePage> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text("取消")),
-                          ElevatedButton(onPressed: () =>{}, child: const Text("保存"))
+                          ElevatedButton(onPressed: () {
+                            sharedPrefs.apiKey = _apiKey.text.trim();
+                            sharedPrefs.baseUrl = _endPoint.text.trim();
+                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("保存成功!")));
+                            Navigator.of(context).pop();
+                          }, child: const Text("保存"))
                         ],
                       )
                     ],),
