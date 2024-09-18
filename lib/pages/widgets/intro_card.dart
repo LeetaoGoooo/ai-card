@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:word_to_card/api/claude.dart';
 import 'package:word_to_card/pages/social_card_page.dart';
 import 'package:word_to_card/pages/svg_page.dart';
@@ -58,9 +59,15 @@ class IntroCardState extends State<IntroCard> {
                           )),
                 );
               }  catch (e) {
-                print(e);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('An error occurred: $e')),
+
+                Fluttertoast.showToast(
+                    msg: 'An error occurred: $e',
+                    toastLength: Toast.LENGTH_SHORT,
+                    gravity: ToastGravity.CENTER,
+                    timeInSecForIosWeb: 1,
+                    backgroundColor: Colors.red,
+                    textColor: Colors.white,
+                    fontSize: 16.0
                 );
               }
               finally {

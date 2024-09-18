@@ -1,40 +1,57 @@
 import 'dart:io';
 
-import 'package:anthropic_sdk_dart/anthropic_sdk_dart.dart';
+import 'package:dart_openai/dart_openai.dart';
 import 'package:word_to_card/api/client_extension.dart';
 import 'package:word_to_card/share_prefs.dart';
 import 'package:http/io_client.dart';
 
 class Claude {
-  late final AnthropicClient client;
   final int maxTokens = 1024;
-  final Model model = const Model.model(Models.claude35Sonnet20240620);
   static SharedPrefs prefs = SharedPrefs();
 
   init() async {
+    OpenAI.apiKey = prefs.apiKey ?? "";
+    OpenAI.baseUrl = prefs.baseUrl ?? "https://api.anthropic.com/v1";
     var httpClient =  await HttpClient().autoProxy();
     httpClient.connectionTimeout = const Duration(seconds: 10);
     final proxyClient = IOClient(httpClient);
-    client = AnthropicClient(
-        apiKey: prefs.apiKey,
-        baseUrl: prefs.baseUrl,
-        client: proxyClient
-    );
+    return proxyClient;
   }
 
-  Future<String> post(String prompt,String userInput) async {
-    await init();
-    final res = await client.createMessage(request:
-      CreateMessageRequest(model:
-          model ,
-          messages: [
-            Message(content: 
-                MessageContent.text(prompt),
-                role: MessageRole.assistant),
-            Message(content:  MessageContent.text(userInput), role: MessageRole.user)
-          ],
-          maxTokens: maxTokens)
+  Future<String?> post(String prompt,String userInput) async {
+    final client = await init();
+    final systemMessage = OpenAIChatCompletionChoiceMessageModel(
+      content: [
+        OpenAIChatCompletionChoiceMessageContentItemModel.text(
+          "$prompt, 输出要求: 要输出svg内容",
+
+        ),
+      ],
+      role: OpenAIChatMessageRole.system,
     );
-    return res.content.text;
+
+    final userMessage = OpenAIChatCompletionChoiceMessageModel(
+      content: [
+        OpenAIChatCompletionChoiceMessageContentItemModel.text(
+          userInput
+        ),
+      ],
+      role: OpenAIChatMessageRole.user,
+    );
+
+    final requestMessages = [
+      systemMessage,
+      userMessage,
+    ];
+    OpenAIChatCompletionModel chatCompletion = await OpenAI.instance.chat.create(
+      model: "claude-3-5-sonnet-20240620",
+      responseFormat: {"type": "json_object"},
+      seed: 6,
+      messages: requestMessages,
+      temperature: 0.2,
+      maxTokens: maxTokens,
+      // client: client
+    );
+    return chatCompletion.choices.first.message.content?[0].text;
   }
 }

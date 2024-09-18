@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
@@ -16,40 +17,61 @@ class SvgPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double width = MediaQuery.sizeOf(context).width;
+    double height = MediaQuery.sizeOf(context).height;
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("卡片"),
-        leading: BackButton(
-          onPressed: () {
-            Navigator.of(context, rootNavigator: true).pop(context);
-          },
-        ),
-      ),
-      body: Column(
-        children: [
-          SvgPicture.string(
-            svgString,
+        appBar: AppBar(
+          title: const Text("卡片"),
+          leading: BackButton(
+            onPressed: () {
+              Navigator.of(context, rootNavigator: true).pop(context);
+            },
           ),
-          ElevatedButton(
-              onPressed: () async {
-                var granted = await _requestPermission();
-                if (granted) {
-                  final imageBytes = await svgStringToPngBytes(svgString);
-                  String picturesPath =
-                      "${DateTime.now().millisecondsSinceEpoch}.jpg";
-                  final res = await SaverGallery.saveImage(imageBytes,
-                      name: picturesPath, androidExistNotSave: false);
-                  var snackBar = const SnackBar(content: Text('保存到相册成功!'));
-                  if (!res.isSuccess) {
-                    snackBar = const SnackBar(content: Text('保存到相册失败!'));
-                  }
-                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                }
-              },
-              child: const Text("保存"))
-        ],
-      ),
-    );
+        ),
+        body: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SvgPicture.string(
+              replaceSvgDimensions(svgString, width, height),
+            ),
+            const SizedBox(height: 20,),
+            SizedBox(
+                height: 60,
+                width: width - 20,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    var granted = await _requestPermission();
+                    if (granted) {
+                      final imageBytes = await svgStringToPngBytes(replaceSvgDimensions(svgString, width, height));
+                      String picturesPath =
+                          "${DateTime.now().millisecondsSinceEpoch}.jpg";
+                      final res = await SaverGallery.saveImage(
+                        imageBytes,
+                        name: picturesPath,
+                        androidExistNotSave: false,
+                      );
+                      var snackBar = '保存到相册成功!';
+                      if (!res.isSuccess) {
+                        snackBar = '保存到相册失败!';
+                      }
+                      if (context.mounted) return;
+                      Fluttertoast.showToast(
+                          msg: snackBar,
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.CENTER,
+                          timeInSecForIosWeb: 1,
+                          backgroundColor: Colors.red,
+                          textColor: Colors.white,
+                          fontSize: 16.0
+                      );
+                    }
+                  },
+                  child: const Text("保存"),
+                ),
+              ),
+          ],
+        )));
   }
 
   Future<Uint8List> svgStringToPngBytes(
@@ -86,5 +108,32 @@ class SvgPage extends StatelessWidget {
     } else {
       return true;
     }
+  }
+
+  String replaceSvgDimensions(String svgString, double width, double height) {
+    // Replace width attribute
+    var widthRegex = RegExp(r'width="100%"');
+    svgString = svgString.replaceAll(widthRegex, 'width="$width"');
+
+    // Replace height attribute
+    var heightRegex = RegExp(r'height=("100%")');
+    svgString = svgString.replaceAll(heightRegex, 'height="$height"');
+
+    widthRegex = RegExp(r"width='100%'");
+    svgString = svgString.replaceAll(widthRegex, 'width="$width"');
+
+    // Replace height attribute
+    heightRegex = RegExp(r"height=('100%')");
+    svgString = svgString.replaceAll(heightRegex, 'height="$height"');
+
+    // If width or height attributes don't exist, add them
+    if (!svgString.contains('width=')) {
+      svgString = svgString.replaceFirst('<svg', '<svg width="$width"');
+    }
+    if (!svgString.contains('height=')) {
+      svgString = svgString.replaceFirst('<svg', '<svg height="$height"');
+    }
+
+    return svgString;
   }
 }

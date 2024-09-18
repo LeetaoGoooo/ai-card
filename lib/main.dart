@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:word_to_card/pages/widgets/intro_card.dart';
 import 'package:word_to_card/share_prefs.dart';
@@ -115,7 +116,15 @@ class _MyHomePageState extends State<MyHomePage> {
                           ElevatedButton(onPressed: () {
                             sharedPrefs.apiKey = _apiKey.text.trim();
                             sharedPrefs.baseUrl = _endPoint.text.trim();
-                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("保存成功!")));
+                            Fluttertoast.showToast(
+                                msg: '保存成功!',
+                                toastLength: Toast.LENGTH_SHORT,
+                                gravity: ToastGravity.CENTER,
+                                timeInSecForIosWeb: 1,
+                                backgroundColor: Colors.red,
+                                textColor: Colors.white,
+                                fontSize: 16.0
+                            );
                             Navigator.of(context).pop();
                           }, child: const Text("保存"))
                         ],

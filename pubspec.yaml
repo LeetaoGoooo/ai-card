@@ -36,15 +36,15 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.6
   dio: ^5.7.0
-  anthropic_sdk_dart: ^0.1.0
   shared_preferences: ^2.3.2
   flutter_svg: ^2.0.10+1
-  simple_loading_dialog: ^1.0.0
   saver_gallery: ^3.0.6
   permission_handler: ^11.3.1
   device_info_plus: ^10.1.2
   system_proxy: ^0.1.0
   modal_bottom_sheet: ^3.0.0
+  dart_openai: ^5.1.0
+  fluttertoast: ^8.2.8
 
 dev_dependencies:
   flutter_test:
