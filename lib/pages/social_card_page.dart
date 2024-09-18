@@ -100,37 +100,20 @@ class _SocialCardPageState extends State<SocialCardPage> {
                Center(child: ElevatedButton(
                  onPressed: () async {
                    if (_formKey.currentState!.validate()) {
-                     final dialogContextCompleter = Completer<BuildContext>();
-                     showDialog<void>(
-                       context: context,
-                       barrierDismissible: false,
-                       builder: (BuildContext dialogContext) {
-                         if(!dialogContextCompleter.isCompleted) {
-                           dialogContextCompleter.complete(dialogContext);
-                         }
-                         return const AlertDialog(
-                           content: Column(
-                             mainAxisSize: MainAxisSize.min,
-                             mainAxisAlignment: MainAxisAlignment.center,
-                             crossAxisAlignment: CrossAxisAlignment.center,
-                             children: [ CircularProgressIndicator()],
-                           ),
-                         );
-                       },
-                     );
-                     final dialogContext =  await dialogContextCompleter.future;
+                     if (!context.mounted) return;
+                     showLoadingDialog(context);
                      final userInput = getFormData();
                      try {
                        final svgString = await widget.template.generateSvgString(userInput);
-                       if (context.mounted) {
-                         Navigator.push(
-                           context,
-                           MaterialPageRoute(builder: (context) =>  SvgPage(svgString: svgString,)),
-                         );
-                       }
+                       if (!context.mounted) return;
+                       Navigator.of(context).pop();
+                       await Navigator.push(
+                         context,
+                         MaterialPageRoute(builder: (BuildContext ctx) =>  SvgPage(svgString: svgString))
+                       );
                      }  finally {
-                       if (dialogContext.mounted) {
-                         Navigator.pop(dialogContext);
+                       if (context.mounted) {
+                         Navigator.of(context).pop();
                        }
                      }
 
@@ -193,5 +176,22 @@ class _SocialCardPageState extends State<SocialCardPage> {
         .where((entry) => entry.value.isNotEmpty)
         .map((entry) => '${entry.key}:${entry.value};')
         .join(' ');
+  }
+
+  void showLoadingDialog(BuildContext ctx) async {
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext dialogContext) {
+        return const AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [CircularProgressIndicator()],
+          ),
+        );
+      },
+    );
   }
 }
