@@ -1,5 +1,6 @@
 library templates;
 
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:word_to_card/api/claude.dart';
 part 'template.dart';
 part 'social_card.dart';

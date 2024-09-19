@@ -41,7 +41,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final SharedPrefs sharedPrefs = SharedPrefs();
   late TextEditingController _apiKey;
   late final TextEditingController _endPoint;
-
+  bool _enableProxy = false;
 
   final List<Template> templates = [
     ChineseInterpretation(),
@@ -57,10 +57,14 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
-    _apiKey = TextEditingController(text: sharedPrefs.apiKey ?? "");
-    _endPoint = TextEditingController(text:sharedPrefs.baseUrl ?? "");
+    initConfig();
     super.initState();
+  }
 
+  void initConfig() {
+    _enableProxy = sharedPrefs.enableProxy;
+    _apiKey = TextEditingController(text: sharedPrefs.apiKey ?? "");
+    _endPoint = TextEditingController(text: sharedPrefs.baseUrl ?? "");
   }
 
   @override
@@ -88,50 +92,87 @@ class _MyHomePageState extends State<MyHomePage> {
         onPressed: () {
           showMaterialModalBottomSheet(
             context: context,
-            builder: (context) => SingleChildScrollView(
-              controller: ModalScrollController.of(context),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('ApiKey', style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold)),
-                      TextFormField(
-                        controller: _apiKey,
-                        validator: (value) => value!.isEmpty ? '请输入正确的 ApiKey' : null,
-                      ),
-                      const SizedBox(height: 16),
-                      Text('Base Url', style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold)),
-                      TextFormField(
-                        controller: _endPoint,
-                        validator: (value) => value!.isEmpty ? '请输入正确的 Base Url' : null,
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            builder: (context) {
+              return StatefulBuilder(builder: (context, StateSetter setState) {
+                return SingleChildScrollView(
+                  controller: ModalScrollController.of(context),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text("取消")),
-                          ElevatedButton(onPressed: () {
-                            sharedPrefs.apiKey = _apiKey.text.trim();
-                            sharedPrefs.baseUrl = _endPoint.text.trim();
-                            Fluttertoast.showToast(
-                                msg: '保存成功!',
-                                toastLength: Toast.LENGTH_SHORT,
-                                gravity: ToastGravity.CENTER,
-                                timeInSecForIosWeb: 1,
-                                textColor: Colors.white,
-                                fontSize: 16.0
-                            );
-                            Navigator.of(context).pop();
-                          }, child: const Text("保存"))
+                          Text('ApiKey',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyLarge
+                                  ?.copyWith(fontWeight: FontWeight.bold)),
+                          TextFormField(
+                            controller: _apiKey,
+                            validator: (value) =>
+                            value!.isEmpty ? '请输入正确的 ApiKey' : null,
+                          ),
+                          const SizedBox(height: 16),
+                          Text('Base Url',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyLarge
+                                  ?.copyWith(fontWeight: FontWeight.bold)),
+                          TextFormField(
+                            controller: _endPoint,
+                            validator: (value) =>
+                            value!.isEmpty ? '请输入正确的 Base Url' : null,
+                          ),
+                          const SizedBox(height: 16),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text('Enable Proxy',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyLarge
+                                      ?.copyWith(fontWeight: FontWeight.bold)),
+                              Switch(
+                                  value: _enableProxy,
+                                  onChanged: (val) {
+                                    sharedPrefs.enableProxy = val;
+                                    setState(() {
+                                      _enableProxy = val;
+                                    });
+                                  })
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              TextButton(
+                                  onPressed: () => Navigator.of(context).pop(),
+                                  child: const Text("取消")),
+                              ElevatedButton(
+                                  onPressed: () {
+                                    sharedPrefs.apiKey = _apiKey.text.trim();
+                                    sharedPrefs.baseUrl = _endPoint.text.trim();
+                                    Fluttertoast.showToast(
+                                        msg: '保存成功!',
+                                        toastLength: Toast.LENGTH_SHORT,
+                                        gravity: ToastGravity.CENTER,
+                                        timeInSecForIosWeb: 1,
+                                        textColor: Colors.white,
+                                        fontSize: 16.0);
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: const Text("保存"))
+                            ],
+                          )
                         ],
-                      )
-                    ],),
-                ),
-              ),
-            ),
+                      ),
+                    ),
+                  ),
+                );
+              });
+            },
           );
         },
         tooltip: 'Config',
