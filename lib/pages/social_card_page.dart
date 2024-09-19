@@ -1,11 +1,15 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:word_to_card/pages/svg_page.dart';
 import 'package:word_to_card/templates/index.dart';
 
 class SocialCardPage extends StatefulWidget {
   final Template template;
+
   const SocialCardPage({super.key, required this.template});
 
   @override
@@ -18,12 +22,17 @@ class _SocialCardPageState extends State<SocialCardPage> {
   final TextEditingController _locationController = TextEditingController();
   final TextEditingController _tagController = TextEditingController();
   final TextEditingController _recentFocusController = TextEditingController();
-  final List<TextEditingController> _highlightControllers = List.generate(3, (_) => TextEditingController());
-  final List<TextEditingController> _skillNameControllers = List.generate(4, (_) => TextEditingController());
-  final List<TextEditingController> _skillDescControllers = List.generate(4, (_) => TextEditingController());
-  final List<TextEditingController> _hobbyControllers = List.generate(4, (_) => TextEditingController());
+  final List<TextEditingController> _highlightControllers =
+      List.generate(3, (_) => TextEditingController());
+  final List<TextEditingController> _skillNameControllers =
+      List.generate(4, (_) => TextEditingController());
+  final List<TextEditingController> _skillDescControllers =
+      List.generate(4, (_) => TextEditingController());
+  final List<TextEditingController> _hobbyControllers =
+      List.generate(4, (_) => TextEditingController());
   final TextEditingController _attitudeController = TextEditingController();
-  final String? base64Image = null;
+  String? base64Image;
+  final ImagePicker _picker = ImagePicker();
 
   @override
   Widget build(BuildContext context) {
@@ -39,58 +48,106 @@ class _SocialCardPageState extends State<SocialCardPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 GestureDetector(
-                  child: Center(
-                    child:Column(
-                      children: [ CircleAvatar(
-                        radius: 30,
-                        child: SizedBox(),
+                    child: Center(
+                      child: Column(
+                        children: [
+                          CircleAvatar(
+                              radius: 30,
+                              child: base64Image == null
+                                  ? const SizedBox()
+                                  : ClipOval(
+                                      child: Image.memory(
+                                          height: 100,
+                                          width: 100,
+                                          fit: BoxFit.cover,
+                                          const Base64Decoder()
+                                              .convert(base64Image!)))),
+                          const Text("上传头像")
+                        ],
                       ),
-                      Text("上传头像")
-                      ],
                     ),
-                  ),
-                  onTap: () {
-
-                  },
-                ),
-                Text('姓名', style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold)),
+                    onTap: () async {
+                      try {
+                        final XFile? pickedFile = await _picker.pickImage(
+                          source: ImageSource.gallery,
+                        );
+                        if (pickedFile != null) {
+                          final base64PickedFileImage =
+                              base64Encode(await pickedFile.readAsBytes());
+                          setState(() {
+                            base64Image = base64PickedFileImage;
+                          });
+                        }
+                      } catch (e) {
+                        Fluttertoast.showToast(
+                            msg: "上传照片失败",
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.CENTER,
+                            timeInSecForIosWeb: 1,
+                            textColor: Colors.white,
+                            fontSize: 16.0);
+                      }
+                    }),
+                Text('姓名',
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyLarge
+                        ?.copyWith(fontWeight: FontWeight.bold)),
                 TextFormField(
                   controller: _nameController,
                   decoration: const InputDecoration(),
                   validator: (value) => value!.isEmpty ? '请输入姓名' : null,
                 ),
                 const SizedBox(height: 16),
-                Text('地点', style:Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold)),
+                Text('地点',
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyLarge
+                        ?.copyWith(fontWeight: FontWeight.bold)),
                 TextFormField(
                   controller: _locationController,
-                  decoration: const InputDecoration(
-                ),
+                  decoration: const InputDecoration(),
                   validator: (value) => value!.isEmpty ? '请输入地点' : null,
                 ),
                 const SizedBox(height: 16),
-                Text('身份标签', style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold)),
+                Text('身份标签',
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyLarge
+                        ?.copyWith(fontWeight: FontWeight.bold)),
                 TextFormField(
                   controller: _tagController,
-                  decoration: const InputDecoration(
-                    label: Text("多个标签可以以 ',' 逗号进行分割")
-                  ),
+                  decoration:
+                      const InputDecoration(label: Text("多个标签可以以 ',' 逗号进行分割")),
                 ),
                 const SizedBox(height: 16),
-                Text('近期关键投入', style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold)),
+                Text('近期关键投入',
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyLarge
+                        ?.copyWith(fontWeight: FontWeight.bold)),
                 TextFormField(
                   controller: _recentFocusController,
                   decoration: const InputDecoration(),
                   validator: (value) => value!.isEmpty ? '请输入近期关键投入' : null,
                 ),
                 const SizedBox(height: 16),
-                Text('履历亮点', style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold)),
+                Text('履历亮点',
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyLarge
+                        ?.copyWith(fontWeight: FontWeight.bold)),
                 for (int i = 0; i < 3; i++)
                   TextFormField(
                     controller: _highlightControllers[i],
                     decoration: InputDecoration(labelText: '亮点 ${i + 1}'),
                   ),
                 const SizedBox(height: 16),
-                Text('擅长领域', style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold)),
+                Text('擅长领域',
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyLarge
+                        ?.copyWith(fontWeight: FontWeight.bold)),
                 for (int i = 0; i < 4; i++) ...[
                   TextFormField(
                     controller: _skillNameControllers[i],
@@ -98,14 +155,23 @@ class _SocialCardPageState extends State<SocialCardPage> {
                   ),
                 ],
                 const SizedBox(height: 16),
-                Text('兴趣爱好', style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold)),
+                Text('兴趣爱好',
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyLarge
+                        ?.copyWith(fontWeight: FontWeight.bold)),
                 for (int i = 0; i < 4; i++)
                   TextFormField(
                     controller: _hobbyControllers[i],
-                    decoration: InputDecoration(labelText: '爱好 ${i + 1} (包含emoji)'),
+                    decoration:
+                        InputDecoration(labelText: '爱好 ${i + 1} (包含emoji)'),
                   ),
                 const SizedBox(height: 16),
-                Text('个人态度', style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold)),
+                Text('个人态度',
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyLarge
+                        ?.copyWith(fontWeight: FontWeight.bold)),
                 TextFormField(
                   controller: _attitudeController,
                   decoration: const InputDecoration(),
@@ -113,30 +179,33 @@ class _SocialCardPageState extends State<SocialCardPage> {
                   maxLength: 25,
                 ),
                 const SizedBox(height: 16),
-               Center(child: ElevatedButton(
-                 onPressed: () async {
-                   if (_formKey.currentState!.validate()) {
-                     if (!context.mounted) return;
-                     showLoadingDialog(context);
-                     final userInput = getFormData();
-                     try {
-                       final svgString = await widget.template.generateSvgString(userInput);
-                       if (!context.mounted) return;
-                       Navigator.of(context).pop();
-                       await Navigator.push(
-                         context,
-                         MaterialPageRoute(builder: (BuildContext ctx) =>  SvgPage(svgString: svgString))
-                       );
-                     }  finally {
-                       if (context.mounted) {
-                         Navigator.of(context).pop();
-                       }
-                     }
-
-                   }
-                 },
-                 child: const Text('提交'),
-               ),)
+                Center(
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      if (_formKey.currentState!.validate()) {
+                        if (!context.mounted) return;
+                        showLoadingDialog(context);
+                        final userInput = getFormData();
+                        try {
+                          final svgString = await widget.template
+                              .generateSvgString(userInput);
+                          if (!context.mounted) return;
+                          Navigator.of(context).pop();
+                          await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (BuildContext ctx) =>
+                                      SvgPage(svgString: svgString)));
+                        } finally {
+                          if (context.mounted) {
+                            Navigator.of(context).pop();
+                          }
+                        }
+                      }
+                    },
+                    child: const Text('提交'),
+                  ),
+                )
               ],
             ),
           ),
