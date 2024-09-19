@@ -23,6 +23,7 @@ class _SocialCardPageState extends State<SocialCardPage> {
   final List<TextEditingController> _skillDescControllers = List.generate(4, (_) => TextEditingController());
   final List<TextEditingController> _hobbyControllers = List.generate(4, (_) => TextEditingController());
   final TextEditingController _attitudeController = TextEditingController();
+  final String? base64Image = null;
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +38,21 @@ class _SocialCardPageState extends State<SocialCardPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                GestureDetector(
+                  child: Center(
+                    child:Column(
+                      children: [ CircleAvatar(
+                        radius: 30,
+                        child: SizedBox(),
+                      ),
+                      Text("上传头像")
+                      ],
+                    ),
+                  ),
+                  onTap: () {
+
+                  },
+                ),
                 Text('姓名', style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold)),
                 TextFormField(
                   controller: _nameController,
