@@ -26,4 +26,10 @@ class SharedPrefs {
   set baseUrl(String? baseUrl) {
     _sharedPrefs.setString("baseUrl", baseUrl!);
   }
+
+  bool get enableProxy => _sharedPrefs.getBool("enableProxy") ?? false;
+
+  set enableProxy(bool? enableProxy)  {
+     _sharedPrefs.setBool("enableProxy", enableProxy!);
+  }
 }

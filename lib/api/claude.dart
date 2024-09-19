@@ -50,7 +50,7 @@ class Claude {
       messages: requestMessages,
       temperature: 0.2,
       maxTokens: maxTokens,
-      // client: client
+      client: prefs.enableProxy ? client : null
     );
     return chatCompletion.choices.first.message.content?[0].text;
   }

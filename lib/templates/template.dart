@@ -23,7 +23,6 @@ abstract class Template {
       final Match? svgMatch = svgRegex.firstMatch(res);
       final svgString = svgMatch?.group(0);
       if (svgString == null) {
-        print("There is no svg returned in the response, please try again");
         throw Exception("There is no svg returned in the response, please try again");
       }
       return svgString;
