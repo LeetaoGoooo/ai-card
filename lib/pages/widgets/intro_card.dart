@@ -54,7 +54,7 @@ class IntroCardState extends State<IntroCard> {
                 await Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (BuildContext ctx) => SvgPage(
+                      builder: (context) => SvgPage(
                             svgString: svgString,
                           )),
                 );
